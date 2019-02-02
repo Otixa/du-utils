@@ -1,4 +1,9 @@
 function SlotDetector(container)
+    local function round(num, numDecimalPlaces)
+        local mult = 10^(numDecimalPlaces or 0)
+        return math.floor(num * mult + 0.5) / mult
+    end
+      
     if not container then container = _G end
     local slots = {Engines={}, SpaceFuelTanks={}, AtmoFuelTanks={}, Core=nil, Screens={}, Telemeters={}, Radars={}, AntiGrav={}}
     for slotName,var in pairs(container) do
@@ -12,7 +17,7 @@ function SlotDetector(container)
         if var["setBaseAltitude"] then table.insert(slots.AntiGrav, var) goto continue end
         if var["getSelfMass"] then
             --Is Fuel/Container
-            local mass = var["getSelfMass"]
+            local mass = round(var["getSelfMass"](),2)
             if mass == 8.87 or mass == 38.34 or mass == 308.56 or mass == 2453.74 then table.insert(slots.AtmoFuelTanks, var) goto continue end
             if mass == 38.08 or mass == 304.61 or mass == 2436.87 then table.insert(slots.SpaceFuelTanks, var) goto continue end
             goto continue
