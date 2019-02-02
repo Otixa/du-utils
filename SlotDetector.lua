@@ -13,6 +13,8 @@ function SlotDetector(container)
         if var["getSelfMass"] then
             --Is Fuel/Container
             local mass = var["getSelfMass"]
+            if mass == 8.87 or mass == 38.34 or mass == 308.56 or mass == 2453.74 then table.insert(slots.AtmoFuelTanks, var) goto continue end
+            if mass == 38.08 or mass == 304.61 or mass == 2436.87 then table.insert(slots.SpaceFuelTanks, var) goto continue end
             goto continue
         end
 
