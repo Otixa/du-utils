@@ -3,7 +3,7 @@
 SlotContainer = (function()
     local self = {}
     function self.new()
-        return {FoundIDs={}, Engines={}, FuelTanks={Atmo={XS={},S={},M={},L={}}, Rocket={XS={},S={},M={},L={}}, Space={S={},M={},L={}}}, Core=nil, Screens={}, Telemeters={}, Radars={}, AntiGrav={}, Databanks={}, Doors={}}
+        return {FoundIDs={}, Engines={}, FuelTanks={Atmo={}, Rocket={}, Space={}}, Core=nil, Screens={}, Telemeters={}, Radars={}, AntiGrav={}, Databanks={}, Doors={}}
     end
     return self
 end)()
@@ -50,37 +50,34 @@ SlotDetector = (function()
 
             if class == "SpaceFuelContainer" then
                 local mass = round(var.getSelfMass(),2)
-                local containerType = nil
 
-                for k,fuelTank in pairs(FuelTanks) do
-                    if mass==fuelTank.Mass then containerType = fuelTank break end
+                for k,fuelTank in pairs(FuelTanks.Space) do
+                    if mass==fuelTank.Mass then var.ContainerType = fuelTank break end
                 end
 
-                table.insert(slots.FuelTanks.Space[containerType.Class], var)
+                table.insert(slots.FuelTanks.Space, var)
                 goto continue
             end
 
             if class == "AtmoFuelContainer" then
                 local mass = round(var.getSelfMass(),2)
-                local containerType = nil
 
-                for k,fuelTank in pairs(FuelTanks) do
-                    if mass==fuelTank.Mass then containerType = fuelTank break end
+                for k,fuelTank in pairs(FuelTanks.Atmosphere) do
+                    if mass==fuelTank.Mass then var.ContainerType = fuelTank break end
                 end
 
-                table.insert(slots.FuelTanks.Atmo[containerType.Class], var)
+                table.insert(slots.FuelTanks.Atmo, var)
                 goto continue
             end
 
             if class == "RocketFuelContainer" then
                 local mass = round(var.getSelfMass(),2)
-                local containerType = nil
 
-                for k,fuelTank in pairs(FuelTanks) do
-                    if mass==fuelTank.Mass then containerType = fuelTank break end
+                for k,fuelTank in pairs(FuelTanks.Rocket) do
+                    if mass==fuelTank.Mass then var.ContainerType = fuelTank break end
                 end
 
-                table.insert(slots.FuelTanks.Rocket[containerType.Class], var)
+                table.insert(slots.FuelTanks.Rocket, var)
                 goto continue
             end
 
