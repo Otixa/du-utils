@@ -1,5 +1,13 @@
 --require FuelTanks.lua
 
+SlotContainer = (function()
+    local self = {}
+    function self.new()
+        return {FoundIDs={}, Engines={}, FuelTanks={Atmo={XS={},S={},M={},L={}}, Rocket={XS={},S={},M={},L={}}, Space={S={},M={},L={}}}, Core=nil, Screens={}, Telemeters={}, Radars={}, AntiGrav={}, Databanks={}, Doors={}}
+    end
+    return self
+end)()
+
 SlotDetector = (function()
     local self = {}
 
@@ -13,7 +21,7 @@ SlotDetector = (function()
             self.ID = unitID
             local mt = {}
             mt.__index = function(t,k) return function(...) return _NQ_execute_method(t.ID, k, ...) end end
-
+            mt.__tostring = function(t) return "Virtual Slot" end
             setmetatable(self, mt)
         end
     
@@ -26,14 +34,11 @@ SlotDetector = (function()
     end
 
     local function identifyUnit(var, slots)
+        if type(var) ~= "table" then goto continue end
         if var["getElementClass"] then
             local id = var["getId"]()
 
             if id == nil then 
-                if var["getConstructWorldPos"] then
-                    --Def a core
-                    slots.Core = var 
-                end
                 goto continue 
             end
 
@@ -83,6 +88,9 @@ SlotDetector = (function()
                 table.insert(slots.Screens, var)
             end
 
+            if class == "DoorUnit" then
+                table.insert(slots.Doors, var)
+            end
 
             if class == "DataBankUnit" then
                 table.insert(slots.Databanks, var) 
@@ -95,12 +103,9 @@ SlotDetector = (function()
             end
 
             --Core unit
-            if class == "Generic" then
-                if var["getConstructWorldPos"] then
-                    --Def a core
-                    slots.Core = var 
-                    goto continue
-                end
+            if class == "CoreUnitDynamic" or class == "CoreUnitStatic" or class == "CoreUnitSpace" then
+                slots.Core = var 
+                goto continue
             end
 
             if string.find(class, "SpaceEngine") then 
@@ -129,22 +134,29 @@ SlotDetector = (function()
     end
 
     function self.DetectSlotsInNamespace(container, slotContainer)
-        local slots = {FoundIDs={}, Engines={}, FuelTanks={Atmo={XS={},S={},M={},L={}}, Rocket={XS={},S={},M={},L={}}, Space={S={},M={},L={}}}, Core=nil, Screens={}, Telemeters={}, Radars={}, AntiGrav={}, Databanks={}}
-        if slotContainer ~= nil then slots = slotContainer end
+        local slots = slotContainer
+        if slotContainer == nil then 
+            slots = SlotContainer.new() 
+        end
 
         for slotName,var in pairs(container) do
             slots = identifyUnit(var, slots)
         end
+
         return slots
     end
+
     function self.DetectSlotsFromList(list, slotContainer)
-        local slots = {FoundIDs={}, Engines={}, FuelTanks={Atmo={XS={},S={},M={},L={}}, Rocket={XS={},S={},M={},L={}}, Space={S={},M={},L={}}}, Core=nil, Screens={}, Telemeters={}, Radars={}, AntiGrav={}, Databanks={}}
-        if slotContainer ~= nil then slots = slotContainer end
+        local slots = slotContainer
+        if slotContainer == nil then 
+            slots = SlotContainer.new() 
+        end
 
         for k,v in pairs(list) do
             local slot = VirtualSlot(v)
             slots = identifyUnit(slot, slots)
         end
+
         return slots
     end
     
