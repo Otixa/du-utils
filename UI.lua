@@ -1,9 +1,71 @@
+UIAnchor = (function()
+    local vec2 = require("cpml/vec2")
+    local this = {}
+    setmetatable(this, {_name = "UIAnchor"})
+    this.TopLeft = function (pos, width, height)
+        return pos
+    end
+
+    this.TopCenter = function (pos, width, height)
+        local retn = vec2(pos.x, pos.y)
+        retn.x = retn.x - (width * 0.5)
+        return retn
+    end
+
+    this.TopRight = function (pos, width, height)
+        local retn = vec2(pos.x, pos.y)
+        retn.x = retn.x - width
+        return retn
+    end
+
+    this.MiddleLeft = function (pos, width, height)
+        local retn = vec2(pos.x, pos.y)
+        retn.y = retn.y - (height * 0.5)
+        return retn
+    end
+
+    this.Middle = function (pos, width, height)
+        local retn = vec2(pos.x, pos.y)
+        retn.x = retn.x - (width * 0.5)
+        retn.y = retn.y - (height * 0.5)
+        return retn
+    end
+
+    this.MiddleRight = function (pos, width, height)
+        local retn = vec2(pos.x, pos.y)
+        retn.x = retn.x - width
+        retn.y = retn.y - (height * 0.5)
+        return retn
+    end
+
+    this.BottomLeft = function (pos, width, height)
+        local retn = vec2(pos.x, pos.y)
+        retn.y = retn.y - height
+        return retn
+    end
+
+    this.BottomCenter = function (pos, width, height)
+        local retn = vec2(pos.x, pos.y)
+        retn.x = retn.x - (width * 0.5)
+        retn.y = retn.y - height
+        return retn
+    end
+
+    this.BottomRight = function (pos, width, height)
+        local retn = vec2(pos.x, pos.y)
+        retn.x = retn.x - width
+        retn.y = retn.y - height
+        return retn
+    end
+    return this
+end)()
+
 UIObject = function(x, y, width, height, content)
     local this = {}
     local vec2 = require("cpml/vec2")
     local typeof = require("pl/types").type
     setmetatable(this, {_name = "UIObject"})
-    this.Enabled = false
+    this.Enabled = true
     this.Name = nil
     this.AlwaysDirty = false
 
@@ -23,12 +85,7 @@ UIObject = function(x, y, width, height, content)
     this.IsDirty = true
     this.IsHovered = false
     this.IsPressed = false
-    this.Anchoring = {
-        TopLeft = false,
-        TopRight = false,
-        BottomLeft = false,
-        BottomRight = false
-    }
+    this.Anchor = UIAnchor.TopLeft
     this.IsClickable = true
 
     this.UI = nil
@@ -73,14 +130,12 @@ UIObject = function(x, y, width, height, content)
             local pad = this.UI.TransformSize(this.Parent.Padding)
             pos = pos + pad
         end
-        return pos
+        return this.Anchor(pos, this.Width, this.Height)
     end
 
     function this._update()
-        if this.Parent ~= nil then
-        -- Recalc pos,size based on anchoring, set IsDirty if changed
-        end
-        
+        if not this.Enabled then return end
+
         if this.Contains(this.UI.MousePos) then
             if not this.IsHovered then
                 this.IsHovered = true
@@ -154,6 +209,7 @@ UIObject = function(x, y, width, height, content)
     function this.OnScroll(scope, delta)
     end
     function this.Render(scope)
+        if not this.Enabled then return "" end
         local anyDirty = scope.IsDirty
         for k, v in ipairs(scope.Children) do
             if v.AlwaysDirty or v.IsDirty then
@@ -233,6 +289,14 @@ UIFillHorizontal = function(x, y, width, height, content)
     return this
 end
 
+UIButton = function(x, y, width, height, content)
+    local this = UIPanel(x, y, width, height, content)
+    this.Class = "button"
+    this.OnEnter = function (ref) ref.Class = ref.Class .. " hover" ref.IsDirty = true end
+    this.OnLeave = function (ref) ref.Class = ref.Class:gsub(" hover", "") ref.IsDirty = true end
+    return this
+end
+
 UICore = function(adapter, CSS)
     local template = require("pl/template")
     local this = {}
@@ -242,7 +306,7 @@ UICore = function(adapter, CSS)
     this.Tags = "hud,core"
     this.Config = adapter.Config
     this.Widgets = {}
-    this.CSS = CSS or ""
+    this.CSS = CSS
     this.Adapter = adapter
 
     local header = ""
@@ -253,15 +317,6 @@ UICore = function(adapter, CSS)
     this.MousePos = vec2(this.Config.ScreenSize.x * 0.5, this.Config.ScreenSize.y * 0.5)
 
     system.showScreen(1)
-    system.freeze(1)
-    Horizon.Controller.hide()
-
-    function contains(obj, pos)
-        if pos.x > obj.x and pos.x < obj.x + obj.Width and pos.y > obj.y and pos.y < obj.y + obj.Height then
-            return true
-        end
-        return false
-    end
 
     function this.TransformSize(size)
         return vec2(size, size + ((size / this.Config.ScreenSize.y) * 1000))
@@ -316,6 +371,7 @@ UICore = function(adapter, CSS)
         end
         widget.UI = this
         table.insert(this.Widgets, widget)
+        return widget
     end
 
     function this.RemoveWidget(widget)
@@ -326,7 +382,7 @@ UICore = function(adapter, CSS)
             if v.GUID == widget.GUID then
                 v.UI = nil
                 table.remove(this.Widgets, k)
-                return
+                return k
             end
         end
     end
@@ -369,6 +425,7 @@ SystemDisplay = (function(system)
         ScreenSize = vec2(2560, 1440)
     }
     this.Config.MousePos = vec2(this.Config.ScreenSize.x * 0.5, this.Config.ScreenSize.y * 0.5)
+    this.Name = "System"
     this.Enable = function() system.showScreen(1) end
     this.Disable = function() system.showScreen(0) end
     this.Set = function(content) system.setScreen(content) end
@@ -408,6 +465,7 @@ ScreenDisplay = function(screen)
         ScreenSize = vec2(1920, 1080)
     }
     local mousePos = vec2(50,50)
+    this.Name = "Screen"
     this.Enable = function() screen.enable() end
     this.Disable = function() screen.disable() end
     this.Set = function(content) screen.setHTML(content) end
