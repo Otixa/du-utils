@@ -1,3 +1,5 @@
+--@class UI
+
 UIAnchor = (function()
     local vec2 = require("cpml/vec2")
     local this = {}

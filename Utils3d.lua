@@ -1,3 +1,5 @@
+--@class Utils3D
+
 Utils3d = (function ()
     local this = {}
 
