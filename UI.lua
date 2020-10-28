@@ -350,7 +350,7 @@ UICore = function(adapter, CSS)
     end
 
     function this.Click(pos)
-        local contained = getContained(this.Widgets, pos)
+        local contained = getContained(this.Widgets, nil, pos)
         local top = nil
         for _, v in ipairs(contained) do
             if not top or top.Zindex < v.Zindex then
