@@ -334,12 +334,12 @@ UICore = function(adapter, CSS)
         this.Adapter.Set(buffer .. "</div>")
     end
 
-    local function getContained(objArray, targetArr)
+    local function getContained(objArray, targetArr, pos)
         if not targetArr then
             targetArr = {}
         end
         for _, v in ipairs(objArray) do
-            if v.Contains(this.MousePos) and v.IsClickable then
+            if v.Contains(pos or this.MousePos) and v.IsClickable then
                 table.insert(targetArr, v)
             end
             if #v.Children > 0 then
@@ -349,8 +349,8 @@ UICore = function(adapter, CSS)
         return targetArr
     end
 
-    function this.Click()
-        local contained = getContained(this.Widgets)
+    function this.Click(pos)
+        local contained = getContained(this.Widgets, pos)
         local top = nil
         for _, v in ipairs(contained) do
             if not top or top.Zindex < v.Zindex then
