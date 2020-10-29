@@ -69,6 +69,18 @@ StringHint = function()
     return this
 end
 
+TableHint = function()
+    local this = ConfigHint()
+    this.Type = "Table"
+    this.Validate = function(val)
+        assert(type(val) == "table", "Value is not a table")
+        return true
+    end
+    this.Save = function(val) return val end
+    this.Load = function(val) return val end
+    return this
+end
+
 Vec2Hint = function()
     local this = ConfigHint()
     this.Type = "Vec2"
@@ -115,8 +127,7 @@ ConfigValue = function(value, hint)
             elseif value.x and value.y then
                 this.Hint = Vec2Hint()
             elseif type(value) == "table" then
-                -- return the table, I guess?
-                this.Hint = ConfigHint()
+                this.Hint = TableHint()
             elseif type(value) == "string" then
                 this.Hint = StringHint()
             else
@@ -135,7 +146,9 @@ ConfigValue = function(value, hint)
     end
 
     this.Save = function()
-        return this.Hint.Save(this.Value)
+        return {
+            Value = this.Hint.Save(this.Value)
+        }
     end
 
     return this
@@ -150,19 +163,30 @@ ConfigSerializer = (function()
             if typeof(v) == "ConfigValue" then
                 output[k] = v.Save()
             else
-                output[k] = ConfigValue(v).Save()
+                output[k] = v
             end
         end
         return json.encode(output)
     end
 
-    this.Deserialize = function(jsonString)
+    local function toConfigOrVal(value)
         local output = {}
-        local val = json.decode(jsonString)
-        for k,v in pairs(val) do
-            output[k] = ConfigValue(v)
+        for k,v in pairs(value) do
+            if type(v) == "table" and v.Value then
+                output[k] = ConfigValue(v.Value)
+            elseif type(v) == "table" then
+                output[k] = toConfigOrVal(v)
+            else
+                output[k] = v
+            end
         end
         return output
+    end
+
+    this.Deserialize = function(jsonString)
+        local val = json.decode(jsonString)
+        val = toConfigOrVal(val)
+        return val
     end
 
     return this
