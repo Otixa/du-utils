@@ -116,7 +116,7 @@ ConfigValue = function(value, hint)
                 this.Hint = Vec2Hint()
             elseif type(value) == "table" then
                 -- return the table, I guess?
-                error("ConfigHint provided is a wrong type ("..type(hint)..")")
+                this.Hint = ConfigHint()
             elseif type(value) == "string" then
                 this.Hint = StringHint()
             else
