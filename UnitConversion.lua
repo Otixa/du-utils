@@ -26,7 +26,7 @@ function UnitConversion()
                 local suffix = "m"
                 if v > 200000 then v = v/200000 suffix = "su"
                 elseif v > 1000 then v = v/1000 suffix = "km" end
-                return Utilities.Round(v,2)..suffix
+                return utils.round(v,0.1)..suffix
             end,
             __add = function(t, v) if type(t)=="table" then return t.Value+v else return v.Value+t end end,
             __sub = function(t, v)  if type(t)=="table" then return t.Value-v else return v.Value-t end end,
@@ -47,7 +47,7 @@ function UnitConversion()
                 local suffix = "m/s"
                 if v > 200000 then v = v/200000 suffix = "su/s"
                 elseif v > 1000 then v = v/1000 suffix = "km/s" end
-                return Utilities.Round(v,2)..suffix
+                return utils.round(v,0.1)..suffix
             end,
             __add = function(t, v) if type(t)=="table" then return t.Value+v else return v.Value+t end end,
             __sub = function(t, v)  if type(t)=="table" then return t.Value-v else return v.Value-t end end,
