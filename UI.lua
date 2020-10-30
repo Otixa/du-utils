@@ -360,6 +360,7 @@ UICore = function(adapter, CSS)
         if top then
             top.OnClick(top)
         end
+        return top
     end
 
     function this.AddWidget(widget)
