@@ -2,6 +2,7 @@
 
 Utils3d = (function ()
     local this = {}
+    local mat4 = require("cpml/mat4")
 
     function this.worldToLocal(pos, up, right, forward)
         return vec3(
