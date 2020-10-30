@@ -1,3 +1,5 @@
+--@class UnitConversion
+
 function UnitConversion()
     local self = {}
 
