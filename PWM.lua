@@ -1,3 +1,5 @@
+--@class PWM
+
 PWM = (function(hz, duty)
     hz = 1 / hz
     local this = {}
@@ -13,5 +15,3 @@ PWM = (function(hz, duty)
     
     return this
 end)
-
-pwm = PWM(2,1)
