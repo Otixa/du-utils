@@ -1,3 +1,5 @@
+--@class Templater
+
 Templater = (function()
     local this = {}
 
