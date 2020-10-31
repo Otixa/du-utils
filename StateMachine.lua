@@ -1,3 +1,5 @@
+--@class StateMachine
+
 StateMachine = (function()
     local this = {}
     this.Current = nil
