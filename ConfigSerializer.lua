@@ -1,6 +1,7 @@
 --@class ConfigSerializer
 
-local typeof = require("pl/types").type
+---@diagnostic disable-next-line: different-requires
+local types = require("pl/types").type
 local json = require("dkjson")
 local vec2 = require("cpml/vec2")
 
@@ -111,7 +112,7 @@ ConfigValue = function(value, hint)
     setmetatable(this, { _name = "ConfigValue" })
 
     local function loadType(value)
-        if hint and typeof(hint) == "ConfigHint" then
+        if hint and types(hint) == "ConfigHint" then
             this.Hint = hint
         elseif hint == nil then
             if type(value) == "number" then
@@ -160,7 +161,7 @@ ConfigSerializer = (function()
     this.Serialize = function(value)
         local output = {}
         for k,v in pairs(value) do
-            if typeof(v) == "ConfigValue" then
+            if types(v) == "ConfigValue" then
                 output[k] = v.Save()
             else
                 output[k] = v

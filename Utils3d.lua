@@ -30,7 +30,7 @@ Utils3d = (function ()
     function this.worldToScreen(selfPos, targetPos, forward, up, fov, aspect)
         -- see https://github.com/rgrams/rendercam/blob/master/rendercam/rendercam.lua for ideas
 
-        local P = mat4():perspective(fov, aspect or 1920/1080, 0.1, 100000)
+        local P = mat4():perspective(fov, aspect or 1.7777777, 0.1, 100000)
         local V = mat4():look_at(selfPos, selfPos + forward, up)
 
         local pos = V * P * { targetPos.x, targetPos.y, targetPos.z, 1 }

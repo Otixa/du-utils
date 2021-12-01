@@ -1,31 +1,43 @@
 --@class UI
 
+local template = require("pl/template")
+local vec2 = require("cpml/vec2")
+---@diagnostic disable-next-line: different-requires
+local typeof = require("pl/types").type
+
+---@class UIAnchor UI Anchoring type.
 UIAnchor = (function()
-    local vec2 = require("cpml/vec2")
+    ---@class UIAnchor UI Anchoring type.
     local this = {}
     setmetatable(this, {_name = "UIAnchor"})
+
+    ---Set origin to top left.
     this.TopLeft = function (pos, width, height)
         return pos
     end
 
+    ---Set origin to top center.
     this.TopCenter = function (pos, width, height)
         local retn = vec2(pos.x, pos.y)
         retn.x = retn.x - (width * 0.5)
         return retn
     end
 
+    ---Set origin to top right.
     this.TopRight = function (pos, width, height)
         local retn = vec2(pos.x, pos.y)
         retn.x = retn.x - width
         return retn
     end
 
+    ---Set origin to middle left.
     this.MiddleLeft = function (pos, width, height)
         local retn = vec2(pos.x, pos.y)
         retn.y = retn.y - (height * 0.5)
         return retn
     end
-
+    
+    ---Set origin to middle center.
     this.Middle = function (pos, width, height)
         local retn = vec2(pos.x, pos.y)
         retn.x = retn.x - (width * 0.5)
@@ -33,6 +45,7 @@ UIAnchor = (function()
         return retn
     end
 
+    ---Set origin to middle right.
     this.MiddleRight = function (pos, width, height)
         local retn = vec2(pos.x, pos.y)
         retn.x = retn.x - width
@@ -40,12 +53,14 @@ UIAnchor = (function()
         return retn
     end
 
+    ---Set origin to bottom left.
     this.BottomLeft = function (pos, width, height)
         local retn = vec2(pos.x, pos.y)
         retn.y = retn.y - height
         return retn
     end
 
+    ---Set origin to bottom center.
     this.BottomCenter = function (pos, width, height)
         local retn = vec2(pos.x, pos.y)
         retn.x = retn.x - (width * 0.5)
@@ -53,6 +68,7 @@ UIAnchor = (function()
         return retn
     end
 
+    ---Set origin to bottom right.
     this.BottomRight = function (pos, width, height)
         local retn = vec2(pos.x, pos.y)
         retn.x = retn.x - width
@@ -62,10 +78,15 @@ UIAnchor = (function()
     return this
 end)()
 
+---@class UIObject Base UI object class.
+---@param x number Screen X position.
+---@param y number Screen Y position.
+---@param width number Object width.
+---@param height number Object height.
+---@param content string Default content of the object.
 UIObject = function(x, y, width, height, content)
+    ---@class UIObject Base UI object class.
     local this = {}
-    local vec2 = require("cpml/vec2")
-    local typeof = require("pl/types").type
     setmetatable(this, {_name = "UIObject"})
     this.Enabled = true
     this.Name = nil
@@ -95,7 +116,6 @@ UIObject = function(x, y, width, height, content)
 
     this.GUID =
         (function()
-        math.randomseed(system.getTime() * 1000000)
         local template = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
         return string.gsub(
             template,
@@ -167,13 +187,13 @@ UIObject = function(x, y, width, height, content)
         end
         for k, v in ipairs(this.Children) do
             if v.GUID == child.GUID then
-                error(v.GUID .. " is already a child of" .. this.GUID)
+                error(v.GUID .. " is already a child of " .. this.GUID)
                 return
             end
         end
         child.Parent = this
         child.UI = this.UI
-        this.Children[#this.Children + 1] = child
+        table.insert(this.Children, child)
     end
 
     function this.RemoveChild(child)
@@ -193,7 +213,7 @@ UIObject = function(x, y, width, height, content)
                 return
             end
         end
-        error(v.GUID .. " is not a child of" .. this.GUID)
+        error(child.GUID .. " is not a child of " .. this.GUID)
     end
 
     function this.OnUpdate(scope)
@@ -213,17 +233,21 @@ UIObject = function(x, y, width, height, content)
     function this.Render(scope)
         if not this.Enabled then return "" end
         local anyDirty = scope.IsDirty
-        for k, v in ipairs(scope.Children) do
-            if v.AlwaysDirty or v.IsDirty then
+        for i=1, #scope.Children do
+            local child = scope.Children[i]
+            if child.AlwaysDirty or child.IsDirty then
                 anyDirty = true
                 break
             end
         end
         if scope.AlwaysDirty or anyDirty then
-            buffer = template.substitute(scope._wrapStart .. scope.Content .. scope._wrapEnd, scope)
-            for k, v in ipairs(scope.Children) do
-                buffer = buffer .. v.Render(v)
+            buffer = {}
+            buffer[1] = template.substitute(scope._wrapStart .. scope.Content .. scope._wrapEnd, scope)
+            for i=1, #scope.Children do
+                local child = scope.Children[i]
+                buffer[i+1] = child.Render(child)
             end
+            buffer = table.concat(buffer)
             scope.IsDirty = false
         end
         return buffer
@@ -232,7 +256,9 @@ UIObject = function(x, y, width, height, content)
     return this
 end
 
+---@class UIPanel:UIObject A basic UI panel.
 UIPanel = function(x, y, width, height, content)
+    ---@class UIPanel:UIObject A basic UI panel.
     local this = UIObject(x, y, width, height, content)
     this._wrapStart =
         [[<panel style="position:absolute;left:$(GetAbsolutePos().x)vw;top:$(GetAbsolutePos().y)vh;width:$(Width)vw;height:$(Height)vh;z-index:$(Zindex);$(Style)" class="$(Class)">]]
@@ -241,7 +267,7 @@ UIPanel = function(x, y, width, height, content)
 end
 
 UIExpandable = function(x, y, content)
-    local this = UIPanel(x, y, width, height, content)
+    local this = UIPanel(x, y, 0, 0, content)
     this.Width = 0
     this.Height = 0
 
@@ -300,11 +326,8 @@ UIButton = function(x, y, width, height, content)
 end
 
 UICore = function(adapter, CSS)
-    local template = require("pl/template")
     local this = {}
     setmetatable(this, {__call = function(ref, ...) ref.Update(...) end, _name = "UICore" })
-    local vec2 = require("cpml/vec2")
-    local typeof = require("pl/types").type
     this.Tags = "hud,core"
     this.Config = adapter.Config
     this.Widgets = {}
@@ -326,10 +349,12 @@ UICore = function(adapter, CSS)
 
     function this.Update(eventType, deltaTime)
         this.MousePos = this.Adapter.GetMouse()
+
         local buffer = header .. [[<div id="horizon">]]
-        for k, v in ipairs(this.Widgets) do
-            v._update()
-            buffer = buffer .. v.Render(v)
+        for i=1,#this.Widgets do
+            local widget = this.Widgets[i]
+            widget._update()
+            buffer = buffer .. widget.Render(widget)
         end
         this.Adapter.Set(buffer .. "</div>")
     end
@@ -406,7 +431,7 @@ DisplayAdapter = function(slot)
     local this = {}
     setmetatable(this, { _name = "DisplayAdapter" })
     this.Slot = slot
-    local vec2 = require("cpml/vec2")
+    
     this.Config = {
         EnableMouse = true,
         MouseSensitivity = 1.2,
@@ -421,11 +446,10 @@ end
 
 SystemDisplay = (function(system)
     local this = DisplayAdapter(system)
-    local vec2 = require("cpml/vec2")
     this.Config = {
         EnableMouse = true,
-        MouseSensitivity = 1.2,
-        ScreenSize = vec2(2560, 1440)
+        MouseSensitivity = 1.5,
+        ScreenSize = vec2(system.getScreenWidth(), system.getScreenHeight())
     }
     this.Config.MousePos = vec2(this.Config.ScreenSize.x * 0.5, this.Config.ScreenSize.y * 0.5)
     this.Name = "System"
@@ -461,7 +485,6 @@ end)(system)
 
 ScreenDisplay = function(screen)
     local this = DisplayAdapter(screen)
-    local vec2 = require("cpml/vec2")
     this.Config = {
         EnableMouse = true,
         MouseSensitivity = 1,

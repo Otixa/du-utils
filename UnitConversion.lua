@@ -1,7 +1,9 @@
 --@class UnitConversion
 
+---@class UnitConversion Unit conversion library.
 function UnitConversion()
-    local self = {}
+    ---@class UnitConversion Unit conversion library.
+    local this = {}
 
     local siUnits = {
         {Name="Giga", Suffix="G", Value="1000000000"},
@@ -11,19 +13,19 @@ function UnitConversion()
         {Name="Centi", Suffix="c", Value="0.01"},
     }
 
-    function self.SIConversion(value, suffix)
+    function this.SIConversion(value, suffix)
         for i=1,#siUnits do
             local siUnit = siUnits[i]
             local val = value/siUnit.Value
             if val > 1 then return string.format("%s%s%s", val, siUnit.Suffix, suffix) end
         end
-        return string.format("%s%s%s", val, "", suffix)
+        return string.format("%s%s%s", value, "", suffix)
     end
 
-    function self.VariableDistance(input)
+    function this.VariableDistance(input)
         local self = {Value = input}
         local mt = {
-            __tostring = function(t) 
+            __tostring = function(t)
                 local v = t.Value
                 local suffix = "m"
                 if v > 200000 then v = v/200000 suffix = "su"
@@ -41,7 +43,7 @@ function UnitConversion()
         setmetatable(self, mt)
         return self
     end
-    function self.VariableVelocity(input)
+    function this.VariableVelocity(input)
         local self = {Value = input}
         local mt = {
             __tostring = function(t) 
@@ -59,11 +61,11 @@ function UnitConversion()
             __lt = function(t, v)  if type(t)=="table" then return t.Value<v else return v.Value<t end end,
             __le = function(t, v)  if type(t)=="table" then return t.Value<=v else return v.Value<=t end end,
         }
-        setmetatable(self, mt)
-        return self
+        setmetatable(this, mt)
+        return this
     end
 
-    function self.TimeConversion(seconds)
+    function this.TimeConversion(seconds)
         local ret = {
             Months = 0,
             Days = 0,
@@ -73,9 +75,9 @@ function UnitConversion()
         }
         local mt = {
             __tostring = function(self)
-                local ret = ""
-                if self.Months > 0 then ret = ret .. self.Months .. " Months " end
-                if self.Days > 0 then ret = ret .. self.Days .. " Days " end
+                local retn = ""
+                if self.Months > 0 then retn = retn .. self.Months .. " Months " end
+                if self.Days > 0 then retn = retn .. self.Days .. " Days " end
     
                 local hours_pad = self.Hours
                 if #tostring(hours_pad)<2 then hours_pad = "0"..hours_pad end
@@ -84,8 +86,8 @@ function UnitConversion()
                 local seconds_pad = self.Seconds
                 if #tostring(seconds_pad)<2 then seconds_pad = "0"..seconds_pad end
     
-                ret = ret .. string.format(" %s:%s:%s", hours_pad, minutes_pad, seconds_pad)
-                return ret
+                retn = retn .. string.format(" %s:%s:%s", hours_pad, minutes_pad, seconds_pad)
+                return retn
             end
         }
         setmetatable(ret, mt)
@@ -100,9 +102,8 @@ function UnitConversion()
         return ret
     end
 
-
-
-    return self
+    return this
 end
 
+---@diagnostic disable-next-line: lowercase-global
 unitconverter = UnitConversion()
