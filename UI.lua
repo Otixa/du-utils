@@ -1,3 +1,5 @@
+---@diagnostic disable: undefined-doc-name, undefined-global
+
 --@class UI
 
 local template = require("pl/template")
@@ -12,11 +14,19 @@ UIAnchor = (function()
     setmetatable(this, {_name = "UIAnchor"})
 
     ---Set origin to top left.
+    ---@param pos vec2 UIObject origin position.
+    ---@param width? number UIObject width. (optional)
+    ---@param height? number UIObject height. (optional)
+    ---@return vec2 TopLeft UIObject origin pos
     this.TopLeft = function (pos, width, height)
         return pos
     end
 
     ---Set origin to top center.
+    ---@param pos vec2 UIObject origin position.
+    ---@param width number UIObject width.
+    ---@param height? number UIObject height. (optional)
+    ---@return vec2 TopCenter
     this.TopCenter = function (pos, width, height)
         local retn = vec2(pos.x, pos.y)
         retn.x = retn.x - (width * 0.5)
@@ -24,6 +34,10 @@ UIAnchor = (function()
     end
 
     ---Set origin to top right.
+    ---@param pos vec2 UIObject origin position.
+    ---@param width number UIObject width.
+    ---@param height? number UIObject height. (optional)
+    ---@return vec2 TopRight
     this.TopRight = function (pos, width, height)
         local retn = vec2(pos.x, pos.y)
         retn.x = retn.x - width
@@ -31,13 +45,21 @@ UIAnchor = (function()
     end
 
     ---Set origin to middle left.
+    ---@param pos vec2 UIObject origin position.
+    ---@param width number UIObject width. (optional)
+    ---@param height number UIObject height.
+    ---@return vec2 MiddleLeft
     this.MiddleLeft = function (pos, width, height)
         local retn = vec2(pos.x, pos.y)
         retn.y = retn.y - (height * 0.5)
         return retn
     end
-    
+
     ---Set origin to middle center.
+    ---@param pos vec2 UIObject origin position.
+    ---@param width number UIObject width.
+    ---@param height number UIObject height.
+    ---@return vec2 Middle
     this.Middle = function (pos, width, height)
         local retn = vec2(pos.x, pos.y)
         retn.x = retn.x - (width * 0.5)
@@ -46,6 +68,10 @@ UIAnchor = (function()
     end
 
     ---Set origin to middle right.
+    ---@param pos vec2 UIObject origin position.
+    ---@param width number UIObject width.
+    ---@param height number UIObject height.
+    ---@return vec2 MiddleRight
     this.MiddleRight = function (pos, width, height)
         local retn = vec2(pos.x, pos.y)
         retn.x = retn.x - width
@@ -54,6 +80,10 @@ UIAnchor = (function()
     end
 
     ---Set origin to bottom left.
+    ---@param pos vec2 UIObject origin position.
+    ---@param width? number UIObject width. (optional)
+    ---@param height number UIObject height.
+    ---@return vec2 BottomLeft
     this.BottomLeft = function (pos, width, height)
         local retn = vec2(pos.x, pos.y)
         retn.y = retn.y - height
@@ -61,6 +91,10 @@ UIAnchor = (function()
     end
 
     ---Set origin to bottom center.
+    ---@param pos vec2 UIObject origin position.
+    ---@param width number UIObject width.
+    ---@param height number UIObject height.
+    ---@return vec2 BottomCenter
     this.BottomCenter = function (pos, width, height)
         local retn = vec2(pos.x, pos.y)
         retn.x = retn.x - (width * 0.5)
@@ -69,6 +103,10 @@ UIAnchor = (function()
     end
 
     ---Set origin to bottom right.
+    ---@param pos vec2 UIObject origin position.
+    ---@param width number UIObject width.
+    ---@param height number UIObject height.
+    ---@return vec2 BottomRight
     this.BottomRight = function (pos, width, height)
         local retn = vec2(pos.x, pos.y)
         retn.x = retn.x - width
@@ -78,42 +116,84 @@ UIAnchor = (function()
     return this
 end)()
 
----@class UIObject Base UI object class.
+---@class UIObject Base UIObject class.
 ---@param x number Screen X position.
 ---@param y number Screen Y position.
----@param width number Object width.
----@param height number Object height.
----@param content string Default content of the object.
+---@param width number UIObject width.
+---@param height number UIObject height.
+---@param content string Default content of the UIObject.
+---@return UIObject
 UIObject = function(x, y, width, height, content)
-    ---@class UIObject Base UI object class.
+    ---@class UIObject Base UIObject class.
     local this = {}
     setmetatable(this, {_name = "UIObject"})
+    ---Controls the enabled state of the UIObject
+    ---@type boolean
     this.Enabled = true
+    ---Name of the UIObject
+    ---@type string
     this.Name = nil
+    ---Set the UIObject to reevaluate its Content each update, as opposed to only when IsDirty is true.
+    ---@type boolean
     this.AlwaysDirty = false
 
+    ---Position of this UIObject
+    ---@type vec2
     this.Position = vec2(x or 0, y or 0)
+    ---Adjusts the location of this UIObject by the specified vector.
+    ---@type vec2
     this.Offset = vec2(0, 0)
 
+    ---UIObject width.
+    ---@type number
     this.Width = width or 0
+    ---UIObject height.
+    ---@type number
     this.Height = height or 0
+    ---Gets or sets a value that represents the order on the z-plane in which an UIObject appears
+    ---@type integer
     this.Zindex = 0
+    ---Represents padding or margin information associated with a UIObject.
+    ---@type number
     this.Padding = 0
+    ---The HTML class attribute is used to specify a class for an UIObject.
+    ---@type string
     this.Class = ""
+    ---The HTML style attribute is used to add styles to an UIObject, such as color, font, size, and more.
+    ---@type string
     this.Style = ""
 
+    ---A UIObject that represents the parent or container of this UIObject.
+    ---@type UIObject? (optional)
     this.Parent = nil
+    ---Gets or sets the array of child UIObject of this UIObject.
+    ---@type UIObject[]
     this.Children = {}
+    ---Default content of the UIObject.
+    ---@type string
     this.Content = content or ""
+    ---Gets or sets whether the value of the UIObject has changed.
+    ---@type boolean
     this.IsDirty = true
+    ---Gets or sets whether the value of the UIObject is hovered
+    ---@type boolean
     this.IsHovered = false
+    ---Gets or sets whether the value of the UIObject is pressed
+    ---@type boolean
     this.IsPressed = false
+    ---
+    --- @type UIAnchor
     this.Anchor = UIAnchor.TopLeft
+    ---Gets or sets a value that indicates whether the UIObject is clickable.
+    ---@type boolean
     this.IsClickable = true
 
+    ---
     this.UI = nil
+    ---
     this.Horizon = Horizon
 
+    ---
     this.GUID =
         (function()
         local template = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx"
@@ -127,11 +207,16 @@ UIObject = function(x, y, width, height, content)
         )
     end)()
 
+    ---
     this._wrapStart = ""
+    ---
     this._wrapEnd = ""
 
     local buffer = ""
 
+    ---Retrieves a value indicating whether the specified position is within the UIObject.
+    ---@param pos vec2 UIObject position to evaluate.
+    ---@return boolean Contains true if the specified position is within the UIObject; otherwise, false
     function this.Contains(pos)
         local selfPos = this.GetAbsolutePos()
         selfPos.x = selfPos.x + this.Padding
@@ -145,6 +230,8 @@ UIObject = function(x, y, width, height, content)
         return false
     end
 
+    ---Computes the location of the UIObject origin position into screen coordinates.
+    ---@return vec2 AbsolutePos
     function this.GetAbsolutePos()
         local pos = this.Position + this.Offset
         if this.Parent then
@@ -155,6 +242,7 @@ UIObject = function(x, y, width, height, content)
         return this.Anchor(pos, this.Width, this.Height)
     end
 
+    ---
     function this._update()
         if not this.Enabled then return end
 
@@ -180,6 +268,8 @@ UIObject = function(x, y, width, height, content)
         end
     end
 
+    ---Adds the specified UIObject as the child of the UIObject.
+    ---@param child UIObject
     function this.AddChild(child)
         if typeof(child) ~= "UIObject" then
             error("Trying to add a non-UIObject")
@@ -195,7 +285,9 @@ UIObject = function(x, y, width, height, content)
         child.UI = this.UI
         table.insert(this.Children, child)
     end
-
+    
+    ---Remove specified UIObject
+    ---@param child UIObject
     function this.RemoveChild(child)
         if typeof(child) ~= "UIObject" then
             error("Trying to remove a non-UIObject")
@@ -216,20 +308,38 @@ UIObject = function(x, y, width, height, content)
         error(child.GUID .. " is not a child of " .. this.GUID)
     end
 
+    ---this Update
+    ---@param scope scope
     function this.OnUpdate(scope)
     end
+    ---this Enter
+    ---@param scope scope
     function this.OnEnter(scope)
     end
+    ---this Leave
+    ---@param scope scope
     function this.OnLeave(scope)
     end
+    ---this Press
+    ---@param scope scope
     function this.OnPress(scope)
     end
+    ---this Release
+    ---@param scope scope
     function this.OnRelease(scope)
     end
+    ---this Click
+    ---@param scope scope
     function this.OnClick(scope)
     end
+    ---this Scroll
+    ---@param scope scope
+    ---@param delta number
     function this.OnScroll(scope, delta)
     end
+    ---this Render
+    ---@param scope scope
+    ---@return string
     function this.Render(scope)
         if not this.Enabled then return "" end
         local anyDirty = scope.IsDirty
@@ -257,6 +367,12 @@ UIObject = function(x, y, width, height, content)
 end
 
 ---@class UIPanel:UIObject A basic UI panel.
+---@param x number
+---@param y number
+---@param width number
+---@param height number
+---@param content string
+---@return UIPanel
 UIPanel = function(x, y, width, height, content)
     ---@class UIPanel:UIObject A basic UI panel.
     local this = UIObject(x, y, width, height, content)
@@ -266,6 +382,11 @@ UIPanel = function(x, y, width, height, content)
     return this
 end
 
+---UI Expandable
+---@param x number
+---@param y number
+---@param content string
+---@return UIObject|UIPanel
 UIExpandable = function(x, y, content)
     local this = UIPanel(x, y, 0, 0, content)
     this.Width = 0
@@ -273,6 +394,7 @@ UIExpandable = function(x, y, content)
 
     local baseUpdate = this._update
 
+    ---
     function this._update()
         local maxHeight = 0
         local maxWidth = 0
@@ -299,6 +421,13 @@ UIExpandable = function(x, y, content)
     return this
 end
 
+---UIFillHorizontal
+---@param x number
+---@param y number
+---@param width number
+---@param height number
+---@param content string
+---@return UIObject|UIPanel
 UIFillHorizontal = function(x, y, width, height, content)
     local this = UIPanel(x, y, width, height, content)
 
@@ -317,6 +446,13 @@ UIFillHorizontal = function(x, y, width, height, content)
     return this
 end
 
+---UIButton
+---@param x number
+---@param y number
+---@param width number
+---@param height number
+---@param content string
+---@return UIObject|UIPanel
 UIButton = function(x, y, width, height, content)
     local this = UIPanel(x, y, width, height, content)
     this.Class = "button"
@@ -325,6 +461,10 @@ UIButton = function(x, y, width, height, content)
     return this
 end
 
+---UICore
+---@param adapter Adapter
+---@param CSS string
+---@return table
 UICore = function(adapter, CSS)
     local this = {}
     setmetatable(this, {__call = function(ref, ...) ref.Update(...) end, _name = "UICore" })
@@ -347,6 +487,9 @@ UICore = function(adapter, CSS)
         return vec2(size, size + ((size / this.Config.ScreenSize.y) * 1000))
     end
 
+    ---Update
+    ---@param eventType any
+    ---@param deltaTime any
     function this.Update(eventType, deltaTime)
         this.MousePos = this.Adapter.GetMouse()
 
@@ -359,6 +502,11 @@ UICore = function(adapter, CSS)
         this.Adapter.Set(buffer .. "</div>")
     end
 
+    ---getContained
+    ---@param objArray UIObject[]
+    ---@param targetArr UIObject[]
+    ---@param pos vec2
+    ---@return UIObject[]
     local function getContained(objArray, targetArr, pos)
         if not targetArr then
             targetArr = {}
@@ -374,6 +522,9 @@ UICore = function(adapter, CSS)
         return targetArr
     end
 
+    ---Click
+    ---@param pos vec2
+    ---@return UIObject
     function this.Click(pos)
         local contained = getContained(this.Widgets, nil, pos)
         local top = nil
@@ -388,6 +539,9 @@ UICore = function(adapter, CSS)
         return top
     end
 
+    ---AddWidget
+    ---@param widget UIObject
+    ---@return UIObject
     function this.AddWidget(widget)
         if typeof(widget) ~= "UIObject" then
             return
@@ -402,6 +556,9 @@ UICore = function(adapter, CSS)
         return widget
     end
 
+    ---RemoveWidget
+    ---@param widget UIObject
+    ---@return integer
     function this.RemoveWidget(widget)
         if typeof(widget) ~= "UIObject" then
             return
@@ -427,6 +584,9 @@ UICore = function(adapter, CSS)
     return this
 end
 
+---abstraction Slot setup for using with screens
+---@param slot table
+---@return table
 DisplayAdapter = function(slot)
     local this = {}
     setmetatable(this, { _name = "DisplayAdapter" })
@@ -444,6 +604,9 @@ DisplayAdapter = function(slot)
     return this
 end
 
+---abstraction for using with screens
+---@param system table
+---@return table
 SystemDisplay = (function(system)
     local this = DisplayAdapter(system)
     this.Config = {
@@ -461,6 +624,10 @@ SystemDisplay = (function(system)
         return vec2((pos.x / this.Config.ScreenSize.x) * 100, (pos.y / this.Config.ScreenSize.y) * 100)
     end
 
+    ---process Mouse position
+    ---@param x number
+    ---@param y number
+    ---@return processMouse
     local function processMouse(x, y)
         mousePos = mousePos + (vec2(x, y) * this.Config.MouseSensitivity)
         if mousePos.x < 0 then
@@ -483,6 +650,9 @@ SystemDisplay = (function(system)
     return this
 end)(system)
 
+---abstraction for using with screens
+---@param screen screen
+---@return DisplayAdapter
 ScreenDisplay = function(screen)
     local this = DisplayAdapter(screen)
     this.Config = {
