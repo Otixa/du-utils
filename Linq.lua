@@ -8,7 +8,6 @@ Linq = function(collection)
     ---@class Linq
     local this = {}
 
-
     ---The raw value of the collection.
     ---@type table
     this.Value = collection
@@ -254,12 +253,12 @@ Linq = function(collection)
 
         if type(predicate) == "function" then
             for k, v in pairs(collection) do
-                if result == nil then
-                    result = v
-                end
                 local res = predicate(v)
-                if res < predicate(result) then
-                    result = v
+                if result == nil then
+                    result = res
+                end
+                if res < result then
+                    result = res
                 end
             end
         else
@@ -286,12 +285,12 @@ Linq = function(collection)
 
         if type(predicate) == "function" then
             for k, v in pairs(collection) do
+                local res = predicate(v)
                 if result == nil then
-                    result = v
+                    result = res
                 end
-                local res = predicate(v, k)
-                if res > predicate(result) then
-                    result = v
+                if res > result then
+                    result = res
                 end
             end
         else
