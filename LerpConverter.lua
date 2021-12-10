@@ -1,4 +1,4 @@
---@class Vec6
+--@class LerpConverter
 
 ---Utility for converting 6DOF axis into a lerped vec3
 ---@class LerpConverter
