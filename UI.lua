@@ -325,6 +325,25 @@ UIButton = function(x, y, width, height, content)
     return this
 end
 
+UIHeading = function(x, y, width, height, content)
+    local this = UIPanel(x, y, width, height, content)
+    this._wrapStart = [[<uiheading style="position:absolute;left:$(GetAbsolutePos().x)vw;top:$(GetAbsolutePos().y)vh;width:$(Width)vw;height:$(Height)vh;z-index:$(Zindex);$(Style)" class="$(Class)">]]
+    this._wrapEnd = [[</uiheading>]]
+    return this
+end
+
+UIProgressVertical = function(x, y, width, height)
+    local this = UIPanel(x, y, width, height)
+    this.Value = 100
+    this.Class = "prog-bar"
+    this.BarStyle = ""
+    this.BarColor = "var(--primary)"
+    this._wrapStart = [[<uivprogress style="position:absolute;left:$(GetAbsolutePos().x)vw;top:$(GetAbsolutePos().y)vh;width:$(Width)vw;height:$(Height)vh;z-index:$(Zindex);$(Style)" class="$(Class)"><inner style="height:$(Value)%;background-color:$(BarColor);box-shadow:0 0 0.25vw 0.05vw $(BarColor);$(BarStyle)">]]
+    this._wrapEnd = [[</inner></uivprogress>]]
+
+    return this
+end
+
 UICore = function(adapter, CSS)
     local this = {}
     setmetatable(this, {__call = function(ref, ...) ref.Update(...) end, _name = "UICore" })
@@ -431,7 +450,7 @@ DisplayAdapter = function(slot)
     local this = {}
     setmetatable(this, { _name = "DisplayAdapter" })
     this.Slot = slot
-    
+
     this.Config = {
         EnableMouse = true,
         MouseSensitivity = 1.2,
