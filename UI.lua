@@ -325,6 +325,13 @@ UIButton = function(x, y, width, height, content)
     return this
 end
 
+UILabel = function(x, y, width, height, content)
+    local this = UIPanel(x, y, width, height, content)
+    this._wrapStart = [[<uilabel style="position:absolute;left:$(GetAbsolutePos().x)vw;top:$(GetAbsolutePos().y)vh;width:$(Width)vw;height:$(Height)vh;z-index:$(Zindex);$(Style)" class="$(Class)">]]
+    this._wrapEnd = [[</uilabel>]]
+    return this
+end
+
 UIHeading = function(x, y, width, height, content)
     local this = UIPanel(x, y, width, height, content)
     this._wrapStart = [[<uiheading style="position:absolute;left:$(GetAbsolutePos().x)vw;top:$(GetAbsolutePos().y)vh;width:$(Width)vw;height:$(Height)vh;z-index:$(Zindex);$(Style)" class="$(Class)">]]
