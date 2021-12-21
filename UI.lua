@@ -145,6 +145,14 @@ UIObject = function(x, y, width, height, content)
         return false
     end
 
+    function this.IsEnabled()
+        if not this.UI then return false end
+        if this.Parent then
+            return this.Enabled and this.Parent.IsEnabled()
+        end
+        return this.Enabled
+    end
+
     function this.GetAbsolutePos()
         local pos = this.Position + this.Offset
         if this.Parent then
@@ -193,6 +201,7 @@ UIObject = function(x, y, width, height, content)
         end
         child.Parent = this
         child.UI = this.UI
+        child.Zindex = this.Zindex + 1
         table.insert(this.Children, child)
     end
 
@@ -339,6 +348,37 @@ UIHeading = function(x, y, width, height, content)
     return this
 end
 
+UICheckbox = function(x, y, width, height)
+    local this = UIPanel(x, y, width, height)
+    this._wrapStart = [[<uicheckbox style="position:absolute;left:$(GetAbsolutePos().x)vw;top:$(GetAbsolutePos().y)vh;width:$(Width)vw;height:$(Height)vh;z-index:$(Zindex);$(Style)" class="$(Class)">]]
+    this._wrapEnd = [[</uicheckbox>]]
+    this.Style = "opacity: 0.75"
+    this.Value = false
+    this.AlwaysDirty = true
+    function this.OnEnter()
+        this.Style = "opacity: 0.95"
+        this.IsDirty = true
+    end
+    function this.OnLeave()
+        this.Style = "opacity: 0.75"
+        this.IsDirty = true
+    end
+    function this.OnClick()
+        this.Value = not this.Value
+        this.IsDirty = true
+    end
+    local baseUpdate = this._update
+    function this._update()
+        baseUpdate()
+        if this.Value then
+            this.Class = "checked"
+        else
+            this.Class = ""
+        end
+    end
+    return this
+end
+
 UIProgressVertical = function(x, y, width, height)
     local this = UIPanel(x, y, width, height)
     this.Value = 100
@@ -390,7 +430,7 @@ UICore = function(adapter, CSS)
             targetArr = {}
         end
         for _, v in ipairs(objArray) do
-            if v.Contains(pos or this.MousePos) and v.IsClickable then
+            if v.IsEnabled() and v.IsClickable and v.Contains(pos or this.MousePos) then
                 table.insert(targetArr, v)
             end
             if #v.Children > 0 then
@@ -404,7 +444,7 @@ UICore = function(adapter, CSS)
         local contained = getContained(this.Widgets, nil, pos)
         local top = nil
         for _, v in ipairs(contained) do
-            if not top or top.Zindex < v.Zindex then
+            if not top or top.Zindex < v.Zindex and v.IsEnabled() then
                 top = v
             end
         end
