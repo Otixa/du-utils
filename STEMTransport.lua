@@ -37,7 +37,7 @@ end
 STEMTransport = function(comm)
     local this = Transport(comm)
     this.Name = "STEM"
-    
+
     local DH = DHKE()
     local Public = nil
     local Shared = nil
@@ -59,7 +59,7 @@ STEMTransport = function(comm)
         end
         return DH.Public
     end
-    
+
     this.Finalize = function()
         Shared = md5(tostring(DH.Validate(Public)))
         this.IsInitialized = true

@@ -44,7 +44,7 @@ XTEA = (function()
         local rbn = #itxt
         local st = keysetup(key)
         local ksu, ibu, ob
-        
+
         for i = 1, #itxt, 8 do
             ksu = encrypt_u64(st, ivu ~ i)
             if rbn < 8 then

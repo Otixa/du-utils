@@ -18,12 +18,12 @@ Camera = function(resolution, FOV)
     this.Projection = nil
 
     local tan = math.tan
-    local tanFov = math.tan(this.FOV / 2)
+    local tanFov = tan(this.FOV / 2)
     local preCalculated = nil
 
-    local function vecToVec4(pos)
-        return {pos.x, pos.y, pos.z or 0, 1}
-    end
+    -- local function vecToVec4(pos)
+    --     return {pos.x, pos.y, pos.z or 0, 1}
+    -- end
 
     -- this.Projection = mat4({
     --     1 / (tanFov * this.AspectRatio), 0, 0, 0,
@@ -96,7 +96,7 @@ Camera = function(resolution, FOV)
         return vec3(pv[1], pv[2], pv[3]+1)
     end
 
-    this.ScreenToWorldRay = function(position)
+    -- this.ScreenToWorldRay = function(position)
         -- local m = (this.Projection * this.View):invert()
 
         -- -- Readjust into -1 to 1 space
@@ -110,7 +110,7 @@ Camera = function(resolution, FOV)
         -- np = np * (1/np[1])
         -- fp = fp * (1/fp[1])
         -- return vec3(np.x, np.y, np.z), vec3(fp.x, fp.y, fp.z)
-    end
+    -- end
 
     return this
 end
