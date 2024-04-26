@@ -26,7 +26,7 @@ RPC = function(comm)
             return
         end
         if this.Communication.SwitchTransport(transportType) then
-            return this.Communication.Send("HSKA", trans.Init() .. " " .. tostring(trans.Begin())) 
+            return this.Communication.Send("HSKA", trans.Init() .. " " .. tostring(trans.Begin()))
         else
             error("Unsupported transport: " .. transportType)
             -- error out with not supported transport
@@ -179,7 +179,7 @@ Communication = function(myId, targetId, device, transports)
     this.Queue = {}
     this.Connected = false
     this.ShouldClose = false
-    this.LastMessage = system.getTime()
+    this.LastMessage = system.getArkTime()
     this.Timeout = 10
     this.Debug = false
 
@@ -211,7 +211,7 @@ Communication = function(myId, targetId, device, transports)
     end
 
     this.Process = function()
-        if #this.Queue == 0 and (system.getTime() - this.LastMessage) > this.Timeout then
+        if #this.Queue == 0 and (system.getArkTime() - this.LastMessage) > this.Timeout then
             this.Close("Timeout")
             return false
         end
@@ -265,12 +265,12 @@ Communication = function(myId, targetId, device, transports)
                 error("Incorrect message id or target: "..str..". Expected id:"..this.Id.." and target:"..this.TargetId)
                 return
             end
-            
+
             local data = this.CurrentTransport.Read(payload)
             if data ~= nil then
-                this.LastMessage = system.getTime()
+                this.LastMessage = system.getArkTime()
                 local rpc = this.RPC[type]
-                if rpc then 
+                if rpc then
                     return rpc(data)
                 else
                     error("Received invalid RPC: " .. type)

@@ -36,7 +36,7 @@ UIAnchor = (function()
         retn.y = retn.y - (height * 0.5)
         return retn
     end
-    
+
     ---Set origin to middle center.
     this.Middle = function (pos, width, height)
         local retn = vec2(pos.x, pos.y)
@@ -250,13 +250,13 @@ UIObject = function(x, y, width, height, content)
             end
         end
         if scope.AlwaysDirty or anyDirty then
-            buffer = {}
-            buffer[1] = template.substitute(scope._wrapStart .. scope.Content .. scope._wrapEnd, scope)
+            local buf = {}
+            buf[1] = template.substitute(scope._wrapStart .. scope.Content .. scope._wrapEnd, scope)
             for i=1, #scope.Children do
                 local child = scope.Children[i]
-                buffer[i+1] = child.Render(child)
+                buf[i+1] = child.Render(child)
             end
-            buffer = table.concat(buffer)
+            buffer = table.concat(buf)
             scope.IsDirty = false
         end
         return buffer
